@@ -66,10 +66,10 @@ export class UsersController {
   async update(
     @Param(
       'id',
-      //   new ParseUUIDPipe({
-      //     errorHttpStatusCode: HttpStatus.BAD_REQUEST,
-      //     version: '4',
-      //   }),
+      new ParseUUIDPipe({
+        errorHttpStatusCode: HttpStatus.BAD_REQUEST,
+        version: '4',
+      }),
     )
     id: string,
     @Body() updateUserDto: UpdateUserDto,

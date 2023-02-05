@@ -51,10 +51,6 @@ export class UsersService {
   }
 
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
-    if (!uuid.validate(id)) {
-      throw new HttpException('User id should be uuid', HttpStatus.BAD_REQUEST);
-    }
-
     const user = await this.userRepository.findOneAndUpdate(id, updateUserDto);
 
     if (user === 403) {

@@ -12,10 +12,6 @@ export interface User {
   updatedAt: number; // timestamp of last update
 }
 
-// interface DB {
-//   users: User[];
-// }
-
 @Injectable()
 export class UserRepository {
   private users: User[];
@@ -55,7 +51,6 @@ export class UserRepository {
     return user;
   };
 
-  // findAll = async (): Promise<User[]> => {
   findAll = async (): Promise<User[]> => {
     return this.users;
   };
