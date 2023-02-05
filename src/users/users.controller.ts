@@ -9,9 +9,6 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
-  Header,
-
-  //   ValidationPipe,
 } from '@nestjs/common';
 import { CreateUserDto } from './create-user.dto';
 import { UpdateUserDto } from './update-user.dto';
