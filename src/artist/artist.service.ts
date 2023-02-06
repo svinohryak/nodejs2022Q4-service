@@ -1,13 +1,21 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { TrackRepository } from 'src/tracks/tracks.repository';
 import { Artist, ArtistRepository } from './artist.repository';
 import { CreateArtistDto } from './create-artist.dto';
 
+const HttpExceptionMessage = {
+  NOT_FOUND: 'Artist not found',
+};
+
 @Injectable()
 export class ArtistService {
-  constructor(private artistRepository: ArtistRepository) {}
+  constructor(
+    private artistRepository: ArtistRepository,
+    private tracksRepository: TrackRepository,
+  ) {}
 
-  createArtist(userDto: CreateArtistDto) {
-    const artist = this.artistRepository.create(userDto);
+  async createArtist(dto: CreateArtistDto) {
+    const artist = this.artistRepository.create(dto);
     return artist;
   }
 
@@ -20,7 +28,10 @@ export class ArtistService {
     const artist = this.artistRepository.findUnique(id);
 
     if (!artist) {
-      throw new HttpException('Artist not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        HttpExceptionMessage.NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return artist;
@@ -28,11 +39,14 @@ export class ArtistService {
 
   async deleteArtist(id: string) {
     const allArtists = await this.getAllArtists();
-    const artistToRemove = allArtists.find((user) => user.id === id);
-
+    const artistToRemove = allArtists.find((artist) => artist.id === id);
     if (!artistToRemove) {
-      throw new HttpException('Artist not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        HttpExceptionMessage.NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     } else {
+      this.tracksRepository.cleanArtistId(id);
       this.artistRepository.delete(id);
     }
   }
@@ -44,7 +58,10 @@ export class ArtistService {
     );
 
     if (artist === 404) {
-      throw new HttpException('Artist not found', HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        HttpExceptionMessage.NOT_FOUND,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return artist;
