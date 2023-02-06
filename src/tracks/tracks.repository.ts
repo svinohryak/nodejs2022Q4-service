@@ -66,4 +66,12 @@ export class TrackRepository {
       track.artistId = null;
     }
   };
+
+  cleanAlbumId = async (albumId: string) => {
+    const track = this.tracks.find((track) => track.albumId === albumId);
+
+    if (track) {
+      track.albumId = null;
+    }
+  };
 }
