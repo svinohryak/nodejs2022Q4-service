@@ -58,4 +58,15 @@ export class AlbumsRepository {
 
     this.albums.splice(index, 1);
   };
+
+  findAllById(ids: string[]) {
+    const result = [];
+
+    ids.forEach((id) => {
+      const album = this.findUnique(id);
+      result.push(album);
+    });
+
+    return result;
+  }
 }

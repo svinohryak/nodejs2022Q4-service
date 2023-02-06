@@ -50,4 +50,15 @@ export class ArtistRepository {
     const index = this.artists.findIndex((artist) => artist.id === id);
     this.artists.splice(index, 1);
   };
+
+  findAllById(ids: string[]) {
+    const result = [];
+
+    ids.forEach((id) => {
+      const artist = this.findUnique(id);
+      result.push(artist);
+    });
+
+    return result;
+  }
 }

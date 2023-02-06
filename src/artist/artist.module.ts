@@ -7,7 +7,8 @@ import { ArtistService } from './artist.service';
 @Module({
   controllers: [ArtistController],
   providers: [ArtistService, ArtistRepository],
-  exports: [ArtistService],
+  exports: [ArtistRepository],
+  // exports: [ArtistService],
   imports: [forwardRef(() => TracksModule)],
 })
 export class ArtistModule {}

@@ -74,4 +74,15 @@ export class TrackRepository {
       track.albumId = null;
     }
   };
+
+  findAllById(ids: string[]) {
+    const result = [];
+
+    ids.forEach((id) => {
+      const track = this.findUnique(id);
+      result.push(track);
+    });
+
+    return result;
+  }
 }
