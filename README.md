@@ -11,6 +11,12 @@
 git clone {repository URL}
 ```
 
+## Add `.env` file with following content
+
+```
+PORT=4000
+```
+
 ## Installing NPM modules
 
 ```
