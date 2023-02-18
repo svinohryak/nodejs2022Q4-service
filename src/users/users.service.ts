@@ -1,30 +1,42 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateUserDto } from './create-user.dto';
-import { User, UserRepository } from './user.repository';
-import * as uuid from 'uuid';
 import { UpdateUserDto } from './update-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './user.entity';
 
 @Injectable()
 export class UsersService {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) {}
 
-  createUser(userDto: CreateUserDto) {
-    const user = this.userRepository.create(userDto);
-    const { password, ...userToReturn } = user;
-    return userToReturn;
+  private getUserToReturn = (user: User): Omit<User, 'password'> => {
+    const { password, createdAt, updatedAt, ...userToReturn } = user;
+    const date = new Date(createdAt);
+    const dateUp = new Date(updatedAt);
+
+    return {
+      ...userToReturn,
+      createdAt: date.getTime(),
+      updatedAt: dateUp.getTime(),
+    };
+  };
+
+  async createUser(userDto: CreateUserDto) {
+    const user = await this.usersRepository.save(userDto);
+
+    return this.getUserToReturn(user);
   }
 
   async getAllUsers(): Promise<User[]> {
-    const findAllUsers = await this.userRepository.findAll();
+    const findAllUsers = await this.usersRepository.find();
     return findAllUsers;
   }
 
-  getUser(id: string) {
-    // if (!uuid.validate(id)) {
-    //   throw new HttpException('User id should be uuid', HttpStatus.BAD_REQUEST);
-    // }
-
-    const user = this.userRepository.findUnique(id);
+  async getUser(id: string) {
+    const user = await this.usersRepository.findOneBy({ id });
 
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -36,30 +48,34 @@ export class UsersService {
   }
 
   async deleteUser(id: string) {
-    // if (!uuid.validate(id)) {
-    //   throw new HttpException('User id should be uuid', HttpStatus.BAD_REQUEST);
-    // }
-
     const allUsers = await this.getAllUsers();
     const userToRemove = allUsers.find((user) => user.id === id);
 
     if (!userToRemove) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     } else {
-      this.userRepository.delete(id);
+      await this.usersRepository.delete(id);
     }
   }
 
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findOneAndUpdate(id, updateUserDto);
+    const user = await this.usersRepository.findOneBy({ id });
 
-    if (user === 403) {
-      throw new HttpException('Old password is wrong', HttpStatus.FORBIDDEN);
-    } else if (user === 404) {
+    if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    } else {
-      const { password, ...userToReturn } = user;
-      return userToReturn;
     }
+
+    if (user.password !== updateUserDto.oldPassword) {
+      throw new HttpException('Old password is wrong', HttpStatus.FORBIDDEN);
+    }
+
+    await this.usersRepository.update(
+      { id },
+      { password: updateUserDto.newPassword },
+    );
+
+    const updatedUser = await this.usersRepository.findOneBy({ id });
+
+    return this.getUserToReturn(updatedUser);
   }
 }

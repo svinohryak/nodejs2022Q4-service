@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Album } from 'src/albums/albums.repository';
 import { Artist } from 'src/artist/artist.repository';
 import { Track } from 'src/tracks/tracks.repository';
-import * as uuid from 'uuid';
 // import { CreateAlbumDto } from './create-album.dto';
 
 export interface FavoritesRepsonse {
