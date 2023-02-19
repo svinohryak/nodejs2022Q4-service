@@ -1,6 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { TrackRepository } from 'src/tracks/tracks.repository';
-import { Album, AlbumsRepository } from './albums.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { TracksService } from 'src/tracks/tracks.service';
+import { Repository } from 'typeorm';
+import { Album } from './album.entity';
 import { CreateAlbumDto } from './create-album.dto';
 
 const HttpExceptionMessage = {
@@ -10,22 +12,23 @@ const HttpExceptionMessage = {
 @Injectable()
 export class AlbumsService {
   constructor(
-    private albumsRepository: AlbumsRepository,
-    private tracksRepository: TrackRepository,
+    @InjectRepository(Album)
+    private albumsRepository: Repository<Album>,
+    private tracksService: TracksService,
   ) {}
 
-  createAlbum(dto: CreateAlbumDto) {
-    const album = this.albumsRepository.create(dto);
+  async createAlbum(dto: CreateAlbumDto) {
+    const album = await this.albumsRepository.save(dto);
     return album;
   }
 
   async getAllAlbums(): Promise<Album[]> {
-    const findAllTracks = await this.albumsRepository.findAll();
+    const findAllTracks = await this.albumsRepository.find();
     return findAllTracks;
   }
 
-  getAlbum(id: string) {
-    const album = this.albumsRepository.findUnique(id);
+  async getAlbum(id: string) {
+    const album = await this.albumsRepository.findOneBy({ id });
 
     if (!album) {
       throw new HttpException(
@@ -37,31 +40,27 @@ export class AlbumsService {
     return album;
   }
 
-  updateAlbum(id: string, dto: CreateAlbumDto) {
-    const album = this.albumsRepository.findOneAndUpdate(id, dto);
+  async updateAlbum(id: string, dto: CreateAlbumDto) {
+    const album = await this.getAlbum(id);
 
-    if (album === 404) {
-      throw new HttpException(
-        HttpExceptionMessage.NOT_FOUND,
-        HttpStatus.NOT_FOUND,
-      );
-    }
+    await this.albumsRepository.update(
+      { id },
+      {
+        name: dto.name || album.name,
+        year: dto.year || album.year,
+        artistId: dto.artistId || album.artistId,
+      },
+    );
 
-    return album;
+    const updatedAlbum = await this.getAlbum(id);
+
+    return updatedAlbum;
   }
 
   async deleteAlbum(id: string) {
-    const allAlbums = await this.getAllAlbums();
-    const albumToRemove = allAlbums.find((album) => album.id === id);
+    await this.getAlbum(id);
 
-    if (!albumToRemove) {
-      throw new HttpException(
-        HttpExceptionMessage.NOT_FOUND,
-        HttpStatus.NOT_FOUND,
-      );
-    } else {
-      this.tracksRepository.cleanAlbumId(id);
-      this.albumsRepository.delete(id);
-    }
+    this.tracksService.cleanAlbumId(id);
+    this.albumsRepository.delete(id);
   }
 }
