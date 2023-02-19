@@ -1,7 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Album, AlbumsRepository } from 'src/albums/albums.repository';
 import { Artist, ArtistRepository } from 'src/artist/artist.repository';
-import { Track, TrackRepository } from 'src/tracks/tracks.repository';
+import { Track } from 'src/tracks/track.entity';
+import { TracksService } from 'src/tracks/tracks.service';
 import { FavoritesRepository } from './favorites.repository';
 
 export interface FavoritesRepsonse {
@@ -14,14 +15,14 @@ export class FavoritesService {
   constructor(
     private artistRepository: ArtistRepository,
     private albumsRepository: AlbumsRepository,
-    private tracksRepository: TrackRepository,
+    private tracksService: TracksService,
     private favoritesRepository: FavoritesRepository,
   ) {}
 
   getAll = () => {
     const favs = this.favoritesRepository.getAll();
     const { artists, albums, tracks } = favs;
-    const favTracks = this.tracksRepository.findAllById(tracks);
+    const favTracks = this.tracksService.findAllById(tracks);
     const favAlbums = this.albumsRepository.findAllById(albums);
     const favArtists = this.artistRepository.findAllById(artists);
 
@@ -33,8 +34,8 @@ export class FavoritesService {
     return allFavorites;
   };
 
-  addTrack = (id: string) => {
-    const track = this.tracksRepository.findUnique(id);
+  addTrack = async (id: string) => {
+    const track = await this.tracksService.getTrack(id);
 
     if (!track) {
       throw new HttpException(

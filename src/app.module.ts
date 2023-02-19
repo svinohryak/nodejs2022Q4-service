@@ -8,6 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
 import { User } from './users/user.entity';
 import { Track } from './tracks/track.entity';
+import { Artist } from './artist/artist.entity';
 
 dotenv.config();
 
@@ -25,7 +26,7 @@ dotenv.config();
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      entities: [User, Track],
+      entities: [User, Track, Artist],
       synchronize: true,
     }),
   ],

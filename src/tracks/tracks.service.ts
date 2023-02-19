@@ -50,7 +50,9 @@ export class TracksService {
       },
     );
 
-    return track;
+    const updatedTrack = await this.getTrack(id);
+
+    return updatedTrack;
   }
 
   async deleteTrack(id: string) {
@@ -59,5 +61,42 @@ export class TracksService {
     if (track) {
       await this.tracksRepository.delete(id);
     }
+  }
+
+  async cleanArtistId(artistId: string) {
+    const track = await this.tracksRepository.findOneBy({ artistId });
+
+    if (track) {
+      await this.tracksRepository.update(
+        { id: track.id },
+        {
+          artistId: null,
+        },
+      );
+    }
+  }
+
+  async cleanAlbumId(albumId: string) {
+    const track = await this.tracksRepository.findOneBy({ albumId });
+
+    if (track) {
+      await this.tracksRepository.update(
+        { id: track.id },
+        {
+          albumId: null,
+        },
+      );
+    }
+  }
+
+  findAllById(ids: string[]) {
+    const result = [];
+
+    ids.forEach((id) => {
+      const track = this.tracksRepository.findOneBy({ id });
+      result.push(track);
+    });
+
+    return result;
   }
 }

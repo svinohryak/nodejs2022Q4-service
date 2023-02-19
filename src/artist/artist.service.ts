@@ -1,6 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { TrackRepository } from 'src/tracks/tracks.repository';
-import { Artist, ArtistRepository } from './artist.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { TracksService } from 'src/tracks/tracks.service';
+import { Repository } from 'typeorm';
+import { Artist } from './artist.entity';
 import { CreateArtistDto } from './create-artist.dto';
 
 const HttpExceptionMessage = {
@@ -10,22 +12,23 @@ const HttpExceptionMessage = {
 @Injectable()
 export class ArtistService {
   constructor(
-    private artistRepository: ArtistRepository,
-    private tracksRepository: TrackRepository,
+    @InjectRepository(Artist)
+    private artistRepository: Repository<Artist>,
+    private tracksService: TracksService,
   ) {}
 
   async createArtist(dto: CreateArtistDto) {
-    const artist = this.artistRepository.create(dto);
+    const artist = await this.artistRepository.save(dto);
     return artist;
   }
 
   async getAllArtists(): Promise<Artist[]> {
-    const findAllArtists = await this.artistRepository.findAll();
+    const findAllArtists = await this.artistRepository.find();
     return findAllArtists;
   }
 
-  getArtist(id: string) {
-    const artist = this.artistRepository.findUnique(id);
+  async getArtist(id: string) {
+    const artist = await this.artistRepository.findOneBy({ id });
 
     if (!artist) {
       throw new HttpException(
@@ -38,32 +41,25 @@ export class ArtistService {
   }
 
   async deleteArtist(id: string) {
-    const allArtists = await this.getAllArtists();
-    const artistToRemove = allArtists.find((artist) => artist.id === id);
-    if (!artistToRemove) {
-      throw new HttpException(
-        HttpExceptionMessage.NOT_FOUND,
-        HttpStatus.NOT_FOUND,
-      );
-    } else {
-      this.tracksRepository.cleanArtistId(id);
-      this.artistRepository.delete(id);
-    }
+    await this.getArtist(id);
+
+    this.tracksService.cleanArtistId(id);
+    this.artistRepository.delete(id);
   }
 
-  async updateArtist(id: string, updateArtistDto: CreateArtistDto) {
-    const artist = await this.artistRepository.findOneAndUpdate(
-      id,
-      updateArtistDto,
+  async updateArtist(id: string, dto: CreateArtistDto) {
+    const artist = await this.getArtist(id);
+
+    await this.artistRepository.update(
+      { id },
+      {
+        grammy: dto.grammy,
+        name: dto.name || artist.name,
+      },
     );
 
-    if (artist === 404) {
-      throw new HttpException(
-        HttpExceptionMessage.NOT_FOUND,
-        HttpStatus.NOT_FOUND,
-      );
-    }
+    const updatedArtist = await this.getArtist(id);
 
-    return artist;
+    return updatedArtist;
   }
 }

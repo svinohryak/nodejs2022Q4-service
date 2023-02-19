@@ -1,6 +1,8 @@
 import { forwardRef, Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { TracksModule } from '../tracks/tracks.module';
 import { ArtistController } from './artist.controller';
+import { Artist } from './artist.entity';
 import { ArtistRepository } from './artist.repository';
 import { ArtistService } from './artist.service';
 
@@ -8,7 +10,6 @@ import { ArtistService } from './artist.service';
   controllers: [ArtistController],
   providers: [ArtistService, ArtistRepository],
   exports: [ArtistRepository],
-  // exports: [ArtistService],
-  imports: [forwardRef(() => TracksModule)],
+  imports: [forwardRef(() => TracksModule), TypeOrmModule.forFeature([Artist])],
 })
 export class ArtistModule {}
