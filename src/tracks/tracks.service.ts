@@ -1,26 +1,32 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateTrackDto } from './create-track.dto';
-import { Track, TrackRepository } from './tracks.repository';
+import { Track } from './track.entity';
 
 const HttpExceptionMessage = {
   NOT_FOUND: 'Track not found',
 };
 @Injectable()
 export class TracksService {
-  constructor(private tracksRepository: TrackRepository) {}
+  constructor(
+    @InjectRepository(Track)
+    private tracksRepository: Repository<Track>,
+  ) {}
 
-  createTrack(dto: CreateTrackDto) {
-    const track = this.tracksRepository.create(dto);
+  async createTrack(dto: CreateTrackDto) {
+    const track = await this.tracksRepository.save(dto);
     return track;
   }
 
   async getAllArtists(): Promise<Track[]> {
-    const findAllTracks = await this.tracksRepository.findAll();
+    const findAllTracks = await this.tracksRepository.find();
+
     return findAllTracks;
   }
 
-  getTrack(id: string) {
-    const track = this.tracksRepository.findUnique(id);
+  async getTrack(id: string) {
+    const track = await this.tracksRepository.findOneBy({ id });
 
     if (!track) {
       throw new HttpException(
@@ -32,27 +38,26 @@ export class TracksService {
     return track;
   }
 
-  updateTrack(id: string, dto: CreateTrackDto) {
-    const track = this.tracksRepository.findOneAndUpdate(id, dto);
+  async updateTrack(id: string, dto: CreateTrackDto) {
+    const track = await this.getTrack(id);
 
-    if (track === 404) {
-      throw new HttpException(
-        HttpExceptionMessage.NOT_FOUND,
-        HttpStatus.NOT_FOUND,
-      );
-    }
+    await this.tracksRepository.update(
+      { id },
+      {
+        name: dto.name || track.name,
+        duration: dto.duration || track.duration,
+        artistId: dto.artistId,
+      },
+    );
 
     return track;
   }
 
-  deleteTrack(id: string) {
-    const removedTrack = this.tracksRepository.delete(id);
+  async deleteTrack(id: string) {
+    const track = await this.getTrack(id);
 
-    if (removedTrack === 404) {
-      throw new HttpException(
-        HttpExceptionMessage.NOT_FOUND,
-        HttpStatus.NOT_FOUND,
-      );
+    if (track) {
+      await this.tracksRepository.delete(id);
     }
   }
 }
