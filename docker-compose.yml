@@ -1,6 +1,9 @@
+version: '3.8'
+
 services:
   node:
     build: .
+    image: svinohryak/rest-service
     # networks:
     #   - rest-network
     ports:
@@ -8,13 +11,16 @@ services:
     depends_on:
       - database
     volumes:
-      - .:/app
-      - /app/node_modules
+      - ./src:/usr/app/src
+    # volumes:
+    #   - .:/app
+    #   - /app/node_modules
     command: npm run start:dev
     restart: always
 
   database:
     build: ./database
+    image: svinohryak/rest-service-db
     # networks:
     #   - rest-network
     ports:

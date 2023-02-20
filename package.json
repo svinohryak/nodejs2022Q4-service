@@ -21,7 +21,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "docker:build-app": "docker build -t svinohryak/rest-service .",
     "docker:build-db": "docker build -t svinohryak/rest-service-db ./database",
-    "docker:scan": "docker scan svinohryak/rest-service",
+    "docker:scan": "docker scan svinohryak/rest-service & docker scan svinohryak/rest-service-db",
     "docker:compose": "docker-compose up --build"
   },
   "dependencies": {
