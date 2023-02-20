@@ -9,7 +9,7 @@ import { ArtistService } from './artist.service';
 @Module({
   controllers: [ArtistController],
   providers: [ArtistService, ArtistRepository],
-  exports: [ArtistRepository],
+  exports: [ArtistService, ArtistRepository],
   imports: [forwardRef(() => TracksModule), TypeOrmModule.forFeature([Artist])],
 })
 export class ArtistModule {}

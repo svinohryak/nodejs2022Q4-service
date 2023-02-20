@@ -23,8 +23,8 @@ export class TracksController {
   }
 
   @Get()
-  async getAllArtists() {
-    return await this.trackService.getAllArtists();
+  async getAllTracks() {
+    return await this.trackService.getAllTracks();
   }
 
   @Get(':id')

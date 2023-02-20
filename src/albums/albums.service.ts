@@ -63,4 +63,14 @@ export class AlbumsService {
     this.tracksService.cleanAlbumId(id);
     this.albumsRepository.delete(id);
   }
+
+  async findAllById(ids: string[]) {
+    const promises = ids.map(
+      async (id) => await this.albumsRepository.findOneBy({ id }),
+    );
+
+    const result = await Promise.all(promises);
+
+    return result;
+  }
 }

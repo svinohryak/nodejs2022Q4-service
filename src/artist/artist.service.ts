@@ -62,4 +62,14 @@ export class ArtistService {
 
     return updatedArtist;
   }
+
+  async findAllById(ids: string[]) {
+    const promises = ids.map(
+      async (id) => await this.artistRepository.findOneBy({ id }),
+    );
+
+    const result = await Promise.all(promises);
+
+    return result;
+  }
 }

@@ -19,7 +19,7 @@ export class TracksService {
     return track;
   }
 
-  async getAllArtists(): Promise<Track[]> {
+  async getAllTracks(): Promise<Track[]> {
     const findAllTracks = await this.tracksRepository.find();
 
     return findAllTracks;
@@ -89,13 +89,12 @@ export class TracksService {
     }
   }
 
-  findAllById(ids: string[]) {
-    const result = [];
+  async findAllById(ids: string[]) {
+    const promises = ids.map(
+      async (id) => await this.tracksRepository.findOneBy({ id }),
+    );
 
-    ids.forEach((id) => {
-      const track = this.tracksRepository.findOneBy({ id });
-      result.push(track);
-    });
+    const result = await Promise.all(promises);
 
     return result;
   }
