@@ -11,21 +11,65 @@
 git clone {repository URL}
 ```
 
+## Пожалуйста, создайте `.env` файл, содержащий следующие настройки
+
+```
+PORT=4000
+
+CRYPT_SALT=10
+JWT_SECRET_KEY=secret123123
+JWT_SECRET_REFRESH_KEY=secret123123
+TOKEN_EXPIRE_TIME=1h
+TOKEN_REFRESH_EXPIRE_TIME=24h
+
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=postgres
+POSTGRES_HOST=database
+```
+
 ## Installing NPM modules
 
 ```
 npm install
 ```
 
+## Build docker images
+
+- ### application
+  For Mac m1 use second line and comment first line in [Dockerfile](./Dockerfile).  
+  For Windows and Linux use 1 line and comment second line in [Dockerfile](./Dockerfile).
+
+```
+npm run docker:build-app
+```
+
+- ### database
+
+```
+npm run docker:build-db
+```
+
+## Building and running docker
+
+```
+npm run docker:compose
+```
+
+## Scaning images
+
+```
+npm run docker:scan
+```
+
+## [Link to my Docker Hub](https://hub.docker.com/repository/docker/svinohryak/rest-service/general)
+
 ## Running application
 
 ```
 npm start
 ```
-
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
 ## Testing
 

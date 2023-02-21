@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  node:
+    build: .
+    image: svinohryak/rest-service
+    # networks:
+    #   - rest-network
+    ports:
+      - ${PORT}:${PORT}
+    depends_on:
+      - database
+    volumes:
+      - ./src:/usr/app/src
+    # volumes:
+    #   - .:/app
+    #   - /app/node_modules
+    command: npm run start:dev
+    restart: always
+
+  database:
+    build: ./database
+    image: svinohryak/rest-service-db
+    # networks:
+    #   - rest-network
+    ports:
+      - '$POSTGRES_PORT:$POSTGRES_PORT'
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      PG_DATA: /var/lib/postgresql/data
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/logs:/var/lib/postgresql/data/log
+    # volumes:
+    #   - ./database/data:/var/lib/postgresql/data
+    restart: always
+networks:
+  rest-network:
+    driver: bridge
+volumes:
+  pgdata:
