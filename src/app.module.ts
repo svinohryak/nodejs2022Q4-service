@@ -11,6 +11,7 @@ import { Track } from './tracks/track.entity';
 import { Artist } from './artist/artist.entity';
 import { Album } from './albums/album.entity';
 import { Favorites } from './favorites/favorites.entity';
+import { AuthModule } from './auth/auth.module';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ dotenv.config();
       entities: [User, Track, Artist, Album, Favorites],
       synchronize: true,
     }),
+    AuthModule,
   ],
   controllers: [],
   providers: [],

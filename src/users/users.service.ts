@@ -47,6 +47,12 @@ export class UsersService {
     return userToReturn;
   }
 
+  async getUserByLogin(login: string) {
+    const user = await this.usersRepository.findOneBy({ login });
+
+    return user;
+  }
+
   async deleteUser(id: string) {
     const allUsers = await this.getAllUsers();
     const userToRemove = allUsers.find((user) => user.id === id);
