@@ -24,10 +24,13 @@ dotenv.config();
     FavoritesModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
+      // поменять обратно перед сдачей
       host: process.env.POSTGRES_HOST,
       // host: 'localhost',
       port: Number(process.env.POSTGRES_PORT),
       username: process.env.POSTGRES_USER,
+      // поменять обратно перед сдачей
+      // password: 'password',
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       entities: [User, Track, Artist, Album, Favorites],

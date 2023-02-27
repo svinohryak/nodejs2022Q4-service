@@ -9,7 +9,9 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  // UseGuards,
 } from '@nestjs/common';
+// import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CreateUserDto } from './create-user.dto';
 import { UpdateUserDto } from './update-user.dto';
 import { UsersService } from './users.service';
@@ -24,6 +26,7 @@ export class UsersController {
     return this.usersService.createUser(userDto);
   }
 
+  // @UseGuards(JwtAuthGuard)
   @Get()
   //   @Header('Accept', 'application/json')
   async getAllUsers() {
