@@ -60,7 +60,7 @@ export class AlbumsService {
   async deleteAlbum(id: string) {
     await this.getAlbum(id);
 
-    this.tracksService.cleanAlbumId(id);
+    // this.tracksService.cleanAlbumId(id);
     this.albumsRepository.delete(id);
   }
 

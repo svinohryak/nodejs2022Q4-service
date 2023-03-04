@@ -43,7 +43,7 @@ export class ArtistService {
   async deleteArtist(id: string) {
     await this.getArtist(id);
 
-    this.tracksService.cleanArtistId(id);
+    // this.tracksService.cleanArtistId(id);
     this.artistRepository.delete(id);
   }
 

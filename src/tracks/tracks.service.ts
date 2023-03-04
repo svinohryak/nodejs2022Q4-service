@@ -64,28 +64,32 @@ export class TracksService {
   }
 
   async cleanArtistId(artistId: string) {
-    const track = await this.tracksRepository.findOneBy({ artistId });
+    const tracks = await this.tracksRepository.find({ where: { artistId } });
 
-    if (track) {
-      await this.tracksRepository.update(
-        { id: track.id },
-        {
-          artistId: null,
-        },
-      );
+    if (tracks.length) {
+      tracks.forEach(async (track) => {
+        await this.tracksRepository.update(
+          { id: track.id },
+          {
+            artistId: null,
+          },
+        );
+      });
     }
   }
 
   async cleanAlbumId(albumId: string) {
-    const track = await this.tracksRepository.findOneBy({ albumId });
+    const tracks = await this.tracksRepository.find({ where: { albumId } });
 
-    if (track) {
-      await this.tracksRepository.update(
-        { id: track.id },
-        {
-          albumId: null,
-        },
-      );
+    if (tracks.length) {
+      tracks.forEach(async (track) => {
+        await this.tracksRepository.update(
+          { id: track.id },
+          {
+            albumId: null,
+          },
+        );
+      });
     }
   }
 
