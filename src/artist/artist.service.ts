@@ -1,6 +1,12 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TracksService } from 'src/tracks/tracks.service';
+import { FAV, FavoritesService } from 'src/favorites/favorites.service';
 import { Repository } from 'typeorm';
 import { Artist } from './artist.entity';
 import { CreateArtistDto } from './create-artist.dto';
@@ -14,7 +20,8 @@ export class ArtistService {
   constructor(
     @InjectRepository(Artist)
     private artistRepository: Repository<Artist>,
-    private tracksService: TracksService,
+    @Inject(forwardRef(() => FavoritesService))
+    private favoritesService: FavoritesService,
   ) {}
 
   async createArtist(dto: CreateArtistDto) {
@@ -43,8 +50,8 @@ export class ArtistService {
   async deleteArtist(id: string) {
     await this.getArtist(id);
 
-    this.tracksService.cleanArtistId(id);
-    this.artistRepository.delete(id);
+    await this.artistRepository.delete(id);
+    await this.favoritesService.delete(id, FAV.ARTIST);
   }
 
   async updateArtist(id: string, dto: CreateArtistDto) {

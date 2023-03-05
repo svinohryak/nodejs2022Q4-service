@@ -5,12 +5,12 @@ import { ArtistModule } from 'src/artist/artist.module';
 import { TracksModule } from 'src/tracks/tracks.module';
 import { FavoritesController } from './favorites.controller';
 import { Favorites } from './favorites.entity';
-import { FavoritesRepository } from './favorites.repository';
 import { FavoritesService } from './favorites.service';
 
 @Module({
   controllers: [FavoritesController],
-  providers: [FavoritesService, FavoritesRepository],
+  providers: [FavoritesService],
+  exports: [FavoritesService],
   imports: [
     forwardRef(() => TracksModule),
     forwardRef(() => ArtistModule),
