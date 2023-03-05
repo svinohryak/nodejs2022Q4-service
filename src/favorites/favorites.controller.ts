@@ -73,7 +73,7 @@ export class FavoritesController {
     )
     id: string,
   ) {
-    return this.favoritesService.delete(id, FAV.TRACK);
+    return this.favoritesService.delete(id, FAV.TRACK, true);
   }
 
   @Delete('album/:id')
@@ -88,7 +88,7 @@ export class FavoritesController {
     )
     id: string,
   ) {
-    return this.favoritesService.delete(id, FAV.ALBUM);
+    return this.favoritesService.delete(id, FAV.ALBUM, true);
   }
 
   @Delete('artist/:id')
@@ -103,6 +103,6 @@ export class FavoritesController {
     )
     id: string,
   ) {
-    return this.favoritesService.delete(id, FAV.ARTIST);
+    return this.favoritesService.delete(id, FAV.ARTIST, true);
   }
 }

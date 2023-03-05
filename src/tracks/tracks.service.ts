@@ -1,5 +1,12 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FAV, FavoritesService } from 'src/favorites/favorites.service';
 import { Repository } from 'typeorm';
 import { CreateTrackDto } from './create-track.dto';
 import { Track } from './track.entity';
@@ -12,6 +19,8 @@ export class TracksService {
   constructor(
     @InjectRepository(Track)
     private tracksRepository: Repository<Track>,
+    @Inject(forwardRef(() => FavoritesService))
+    private favoritesService: FavoritesService,
   ) {}
 
   async createTrack(dto: CreateTrackDto) {
@@ -60,6 +69,7 @@ export class TracksService {
 
     if (track) {
       await this.tracksRepository.delete(id);
+      await this.favoritesService.delete(id, FAV.TRACK);
     }
   }
 

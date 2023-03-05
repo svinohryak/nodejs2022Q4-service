@@ -10,6 +10,7 @@ import { FavoritesService } from './favorites.service';
 @Module({
   controllers: [FavoritesController],
   providers: [FavoritesService],
+  exports: [FavoritesService],
   imports: [
     forwardRef(() => TracksModule),
     forwardRef(() => ArtistModule),
