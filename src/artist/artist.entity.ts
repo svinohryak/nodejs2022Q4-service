@@ -20,17 +20,9 @@ export class Artist {
   @Column()
   grammy: boolean;
 
-  // @ManyToOne(() => Favorites, (favorites) => favorites.artists)
-  // favorites: Favorites;
-
   @OneToMany(() => Album, (album) => album.artistId, { onDelete: 'SET NULL' })
   albums: Album[];
-  // albums: Album[];
 
   @OneToMany(() => Track, (track) => track.artistId, { onDelete: 'SET NULL' })
   tracks: Track[];
-  // tracks: Track[];
-
-  // @ManyToOne(() => Favorites, (favorites) => favorites.artists)
-  // favorites: Favorites;
 }

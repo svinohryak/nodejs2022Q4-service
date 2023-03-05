@@ -25,7 +25,6 @@ export class Album {
 
   @ManyToOne(() => Artist, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'artistId', referencedColumnName: 'id' })
-  // @JoinColumn({ name: 'artist_id', referencedColumnName: 'id' })
   artist: Artist;
 
   @OneToMany(() => Track, (track) => track.artistId, { onDelete: 'SET NULL' })

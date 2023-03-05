@@ -20,16 +20,11 @@ export interface FavoritesRepsonse {
   albums: Album[];
   tracks: Track[];
 }
-interface FavoritesIds {
-  artist?: string[];
-  album?: string[];
-  track?: string[];
-}
 
 export enum FAV {
-  ALBUM = 'album',
-  ARTIST = 'artist',
-  TRACK = 'track',
+  ALBUM = 'albums',
+  ARTIST = 'artists',
+  TRACK = 'tracks',
 }
 @Injectable()
 export class FavoritesService {
@@ -42,74 +37,45 @@ export class FavoritesService {
     private tracksService: TracksService,
   ) {}
 
-  private getCleanFavs = (favs, type: FAV) => {
-    const nullLessFavs = favs.filter((a) => a !== null);
-
-    const arrFavs = nullLessFavs.map((i) => {
-      switch (type) {
-        case FAV.ARTIST:
-          return { id: i.id, name: i.name, grammy: i.grammy };
-
-        case FAV.ALBUM:
-          return { id: i.id, name: i.name, year: i.year, artistId: i.artistId };
-
-        case FAV.TRACK:
-          return {
-            id: i.id,
-            name: i.name,
-            albumId: i.albumId,
-            artistId: i.artistId,
-            duration: i.duration,
-          };
-
-        default:
-          break;
-      }
-    });
-    return nullLessFavs;
-  };
-
   getAll = async () => {
-    const favs = await this.favoritesRepository.find();
+    const favsIds = await this.favoritesRepository.findOne({
+      where: { id: 1 },
+    });
 
-    console.log(favs);
-
-    const favsIds: FavoritesIds = favs.reduce((acc, cur) => {
-      acc[cur.fav] = cur.ids;
-      return acc;
-    }, {});
-
-    const tracks1 = await this.tracksService.findAllById(
-      favsIds['track'] || [],
+    const albums = await this.albumsService.findAllById(favsIds?.albums || []);
+    const artists = await this.artistService.findAllById(
+      favsIds?.artists || [],
     );
-    const albums1 = await this.albumsService.findAllById(
-      favsIds['album'] || [],
-    );
-    const artists1 = await this.artistService.findAllById(
-      favsIds['artist'] || [],
-    );
+    const tracks = await this.tracksService.findAllById(favsIds?.tracks || []);
 
-    const allFavorites: FavoritesRepsonse = {
-      artists: this.getCleanFavs(artists1, FAV.ARTIST),
-      albums: this.getCleanFavs(albums1, FAV.ALBUM),
-      tracks: this.getCleanFavs(tracks1, FAV.TRACK),
+    return {
+      albums: albums,
+      artists: artists,
+      tracks: tracks,
     };
-
-    return allFavorites;
   };
 
   add = async (id: string, name: FAV) => {
     let items: (Artist | Album | Track)[];
+    let currIds: string[];
+    const favsIds = await this.favoritesRepository.findOne({
+      where: { id: 1 },
+    });
 
     switch (name) {
       case FAV.ALBUM:
         items = await this.albumsService.getAllAlbums();
+        currIds = favsIds?.albums || [];
         break;
+
       case FAV.ARTIST:
         items = await this.artistService.getAllArtists();
+        currIds = favsIds?.artists || [];
         break;
+
       case FAV.TRACK:
         items = await this.tracksService.getAllTracks();
+        currIds = favsIds?.tracks || [];
         break;
 
       default:
@@ -118,10 +84,6 @@ export class FavoritesService {
 
     const item = items.find((item) => item.id === id);
 
-    const ids = await this.favoritesRepository.findOneBy({
-      fav: name,
-    });
-
     if (!item) {
       throw new HttpException(
         `${name} does not exist`,
@@ -129,30 +91,35 @@ export class FavoritesService {
       );
     }
 
-    const oldIds = ids?.ids || [];
-    oldIds.push(id);
+    const uniqueIds = [...new Set([...currIds, id])];
 
-    const favsTest = this.favoritesRepository.create({
-      fav: name,
-      ids: oldIds,
-    });
-    this.favoritesRepository.save(favsTest);
+    await this.favoritesRepository.save({ id: 1, [name]: uniqueIds });
+
+    return {
+      message: `${name} added to favorites`,
+    };
   };
 
   async delete(id: string, name: FAV, isFromFav?: boolean) {
-    const favIds = await this.favoritesRepository.find({
-      where: { fav: name },
+    const favsIds = await this.favoritesRepository.findOne({
+      where: { id: 1 },
     });
 
-    const filteredFavIds = favIds[0]?.ids.filter((fId) => fId !== id);
+    const currIds = favsIds?.[name] || [];
 
-    if (favIds[0].ids.length === filteredFavIds?.length && isFromFav) {
+    const isInFavs = currIds?.some((item) => item === id);
+
+    if (isInFavs === false && isFromFav) {
       throw new HttpException(
         `${name} is not in favorites`,
         HttpStatus.NOT_FOUND,
       );
     }
 
-    this.favoritesRepository.save({ fav: name, ids: filteredFavIds });
+    const filteredIds = currIds?.filter((item) => item !== id);
+
+    if (filteredIds) {
+      await this.favoritesRepository.save({ id: 1, [name]: filteredIds });
+    }
   }
 }
